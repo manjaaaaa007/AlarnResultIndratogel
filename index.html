@@ -198,7 +198,7 @@
         return;
       }
 
-      // Ambil semua Order ID
+      // 1. Ambil semua Order ID
       const orders = [];
       const orderRegex = /Order\s*:\s*([^\s\r\n]+)/gi;
       let orderMatch;
@@ -206,19 +206,22 @@
         orders.push(orderMatch[1].trim());
       }
 
-      // Ambil semua Username & Nominal (Pola: [Nama Rek : ... No Rek : ...] [Username] [Nominal])
-      // Pencarian fleksibel tanpa terpatok pemisah baris \n
+      // 2. Ambil semua Username & Nominal
       const userNominalRegex = /No\s*Rek\s*:\s*\d+[\s\r\n]+([a-zA-Z0-9_]+)[\s\t]+([\d]+(?:\.[\d]+)+)/gi;
       const userNominals = [];
       let unMatch;
       while ((unMatch = userNominalRegex.exec(rawText)) !== null) {
+        let rawNominal = unMatch[2].trim();
+        // Ubah semua titik (.) menjadi koma (,)
+        let commaNominal = rawNominal.replace(/\./g, ',');
+        
         userNominals.push({
           user: unMatch[1].trim(),
-          nominal: `(${unMatch[2].trim()})`
+          nominal: `(${commaNominal})` // Hasil akhir: (600,000)
         });
       }
 
-      // Gabungkan data berdasarkan urutan kemunculan
+      // Gabungkan data
       const totalRows = Math.max(orders.length, userNominals.length);
 
       for (let i = 0; i < totalRows; i++) {
